@@ -5,12 +5,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import org.osmdroid.tileprovider.MapTileProviderBasic
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.overlay.ScaleBarOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import ru.argosaexpert.databinding.FragmentMapBinding
+import ru.argosaexpert.presentation.map.MapTools.getOSMMapTile
 
 
 class MapFragment : Fragment() {
@@ -29,11 +31,10 @@ class MapFragment : Fragment() {
     }
 
     private fun setupOsmdroidMap() = binding.run {
-        mapView.setTileSource(TileSourceFactory.MAPNIK)
+        mapView.setUseDataConnection(true)
+        mapView.tileProvider = MapTileProviderBasic(context)
+        mapView.setTileSource(getOSMMapTile())
         mapView.controller.setZoom(4.0)
-        val compassOverlay = CompassOverlay(requireContext().applicationContext, mapView)
-        compassOverlay.enableCompass()
-        mapView.overlays.add(compassOverlay)
 
         mapView.setMultiTouchControls(true)
         mapView.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
@@ -43,7 +44,6 @@ class MapFragment : Fragment() {
 
         setupCompass()
         setupZoomButtons()
-        setupDisplayMetrics()
     }
 
     private fun setupCompass() = binding.run {
@@ -67,19 +67,6 @@ class MapFragment : Fragment() {
     private fun setupZoomButtons() = binding.run {
      //   zoomInButton.setOnClickListener { mapView.controller.zoomIn() }
        // zoomOutButton.setOnClickListener { mapView.controller.zoomOut() }
-    }
-
-    private fun setupDisplayMetrics() = binding.run {
-        val displayMetrics = resources.displayMetrics
-        val scaleBarOverlay = ScaleBarOverlay(mapView)
-        scaleBarOverlay.unitsOfMeasure = ScaleBarOverlay.UnitsOfMeasure.metric
-        scaleBarOverlay.setCentred(true)
-        scaleBarOverlay.setTextSize(30.0f)
-        scaleBarOverlay.setScaleBarOffset(
-            displayMetrics.widthPixels / 2,
-            displayMetrics.heightPixels - (displayMetrics.density * 70.0f).toInt()
-        )
-        mapView.overlayManager.add(scaleBarOverlay)
     }
 
     override fun onResume() {
